@@ -83,12 +83,12 @@ void FractalView::paint(QPainter *painter)
         m_image.fill(Qt::transparent);
 
         auto fut = QtConcurrent::run([this] {
-            const auto threads = QThread::idealThreadCount() * 64;
-            auto list = (m_type == Type::Julia ? m_juliaRect : m_mandelbrotRect).split(threads);
+            const auto fragments = QThread::idealThreadCount() * 64;
+            auto list = (m_type == Type::Julia ? m_juliaRect : m_mandelbrotRect).split(fragments);
 
-            m_renderingThreadsMutex.lock();
-            m_renderingThreads = threads;
-            m_renderingThreadsMutex.unlock();
+            m_remainingFragmentsMutex.lock();
+            m_remainingFragments = fragments;
+            m_remainingFragmentsMutex.unlock();
 
             QtConcurrent::blockingMap(list, [this](FractalRect &rect) {
                 const auto &vr{rect.visualRect()};
@@ -140,9 +140,9 @@ void FractalView::paint(QPainter *painter)
                     emit updateView();
                 }
 
-                m_renderingThreadsMutex.lock();
-                --m_renderingThreads;
-                m_renderingThreadsMutex.unlock();
+                m_remainingFragmentsMutex.lock();
+                --m_remainingFragments;
+                m_remainingFragmentsMutex.unlock();
             });
 
             m_isFullyLoaded = true;
@@ -186,7 +186,7 @@ void FractalView::switchToMandelbrot()
 void FractalView::cancelRender()
 {
     m_cancelRenderRequested = true;
-    while (m_renderingThreads > 0)
+    while (m_remainingFragments > 0)
         qApp->processEvents();
     m_cancelRenderRequested = false;
 }

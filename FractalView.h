@@ -68,8 +68,8 @@ private:
     qreal m_height{};
 
     QMutex m_imageMutex;
-    QMutex m_renderingThreadsMutex;
-    int m_renderingThreads;
+    QMutex m_remainingFragmentsMutex;
+    int m_remainingFragments;
     bool m_cancelRenderRequested{false};
 };
 
