@@ -112,9 +112,6 @@ complex FractalRect::getFractalValueFromVisualPoint(const double &x, const doubl
 
 complex FractalRect::getFractalValueFromVisualPoint(const QPointF &point) const
 {
-    if (!m_visualRect.contains(point))
-        qDebug("Massive error");
-
     big_float realOffsetPercent = (point.x() - m_visualRect.x()) / m_visualRect.width();
     big_float imagOffsetPercent = (point.y() - m_visualRect.y()) / m_visualRect.height();
 
