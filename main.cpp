@@ -14,6 +14,10 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
+    QCoreApplication::setApplicationName("fracture");
+    QCoreApplication::setOrganizationName("Loren Burkholder");
+    QCoreApplication::setOrganizationDomain("io.github.LorenDB");
+
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages)
