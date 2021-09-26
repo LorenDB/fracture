@@ -9,7 +9,11 @@ FractalRect::FractalRect(big_float x, big_float y, big_float width, big_float he
     : m_x{x},
       m_y{y},
       m_width{width},
-      m_height{height}
+      m_height{height},
+      m_coreX{x},
+      m_coreY{y},
+      m_coreWidth{width},
+      m_coreHeight{height}
 {}
 
 FractalRect::FractalRect(big_float x, big_float y, big_float width, big_float height, QRectF visualRect)
@@ -20,26 +24,29 @@ FractalRect::FractalRect(big_float x, big_float y, big_float width, big_float he
 
 void FractalRect::setVisualRect(const QRectF &visualRect)
 {
-    if (visualRect.width() / visualRect.height() == m_width / m_height)
-        m_visualRect = visualRect;
+    // first we need to parse what our new dimensions will be for the fractal rect
+    if (visualRect.width() / visualRect.height() == m_coreWidth / m_coreHeight)
+    {
+        m_x = m_coreX;
+        m_y = m_coreY;
+        m_width = m_coreWidth;
+        m_height = m_coreHeight;
+    }
     else
     {
-        // our strategy will be to act like QML's Image.PreserveAspectFit fill mode for Images
         if (visualRect.width() > visualRect.height())
         {
-            m_visualRect.setY(visualRect.y());
-            m_visualRect.setHeight(visualRect.height());
-            m_visualRect.setWidth(m_width.convert_to<qreal>() * visualRect.height() / m_height.convert_to<qreal>());
-            m_visualRect.setX(visualRect.x() + (visualRect.width() - m_visualRect.width()) / 2);
+            m_width = visualRect.width() * m_coreHeight / visualRect.height();
+            m_x = m_coreX - (m_width - m_coreWidth) / 2;
         }
         else
         {
-            m_visualRect.setX(visualRect.x());
-            m_visualRect.setWidth(visualRect.width());
-            m_visualRect.setHeight(m_height.convert_to<qreal>() * visualRect.width() / m_width.convert_to<qreal>());
-            m_visualRect.setY(visualRect.y() + (visualRect.height() - m_visualRect.height()) / 2);
+            m_height = visualRect.height() * m_coreWidth / visualRect.width();
+            m_y = m_coreY - (m_height - m_coreHeight) / 2;
         }
     }
+
+    m_visualRect = visualRect;
 }
 
 QVector<FractalRect> FractalRect::split(int parts)

@@ -204,11 +204,11 @@ void FractalView::zoomIn()
 {
     cancelRender();
 
-    auto &currentRect = getCurrentFractalRect();
-    FractalRect newRect{currentRect.x() + currentRect.width() * 0.05,
-                       currentRect.y() + currentRect.height() * 0.05,
-                       currentRect.width() * 0.9,
-                       currentRect.height() * 0.9,
+    auto &currentRect = m_fractalRects[m_type];
+    FractalRect newRect{currentRect.coreX() + currentRect.coreWidth() * ((1 - factor) / 2),
+                       currentRect.coreY() + currentRect.coreHeight() * ((1 - factor) / 2),
+                       currentRect.coreWidth() * factor,
+                       currentRect.coreHeight() * factor,
                        currentRect.visualRect()};
 
     switch (m_type)
@@ -230,11 +230,11 @@ void FractalView::zoomOut()
 {
     cancelRender();
 
-    auto &currentRect = getCurrentFractalRect();
-    FractalRect newRect{currentRect.x() - currentRect.width() / 0.05,
-                       currentRect.y() - currentRect.height() / 0.05,
-                       currentRect.width() / 0.9,
-                       currentRect.height() / 0.9,
+    auto &currentRect = m_fractalRects[m_type];
+    FractalRect newRect{currentRect.x() - currentRect.width() / ((1 - factor) / 2),
+                       currentRect.y() - currentRect.height() / ((1 - factor) / 2),
+                       currentRect.width() / factor,
+                       currentRect.height() / factor,
                 currentRect.visualRect()};
 
     switch (m_type)
