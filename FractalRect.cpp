@@ -13,10 +13,7 @@ FractalRect::FractalRect(big_float x, big_float y, big_float width, big_float he
 {}
 
 FractalRect::FractalRect(big_float x, big_float y, big_float width, big_float height, QRectF visualRect)
-    : m_x{x},
-      m_y{y},
-      m_width{width},
-      m_height{height}
+    : FractalRect{x, y, width, height}
 {
     setVisualRect(visualRect);
 }
