@@ -62,8 +62,7 @@ QVector<FractalRect> FractalRect::split(int parts)
         }
     }
 
-    QVector<FractalRect> rects;
-    rects.push_back(*this);
+    QVector<FractalRect> rects{*this};
 
     for (const auto &factor : factors)
     {
