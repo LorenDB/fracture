@@ -47,6 +47,9 @@ void FractalRect::setVisualRect(const QRectF &visualRect)
 
 QVector<FractalRect> FractalRect::split(int parts)
 {
+    if (parts == 1)
+        return {*this};
+
     QVector<double> factors; // double to ensure double division later on
     // we'll limit the amount of factors that can be factored out to prevent the application from hanging while trying to factor
     // a massive prime (997 is the last prime before 1000; I was going to put 1000 but it seemed odd to end on a non-prime number)
