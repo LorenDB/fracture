@@ -83,8 +83,8 @@ void FractalView::paint(QPainter *painter)
         m_image.fill(Qt::transparent);
 
         auto fut = QtConcurrent::run([this] {
-            const auto fragments = QThread::idealThreadCount() * 64;
             auto list = (m_type == Type::Julia ? m_juliaRect : m_mandelbrotRect).split(fragments);
+            const auto fragments = std::min(QThread::idealThreadCount() * 64, static_cast<int>(width() * height()));
 
             m_remainingFragmentsMutex.lock();
             m_remainingFragments = fragments;
