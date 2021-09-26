@@ -12,14 +12,15 @@ FractalView::FractalView(QQuickItem *parent)
     : QQuickPaintedItem{parent},
       m_width{width()},
       m_height{height()},
-      m_mandelbrotRect{-2.5, -2, 4, 4, boundingRect()},
-      m_juliaRect{-2, -2, 4, 4},
+      m_fractalRects{{Type::Mandelbrot, FractalRect{-2.5, -2, 4, 4}},
+                     {Type::Julia, FractalRect{-2, -2, 4, 4}},
+                     {Type::BurningShip, FractalRect{-2.5, -2, 4, 4}}},
       m_image{boundingRect().size().toSize(), QImage::Format_ARGB32}
 {
     connect(this, &FractalView::updateView, this, [this] { update(); }, Qt::QueuedConnection);
 }
 
-// the methodology of these functions come from John R. H. Goering's
+// the methodology of these two functions come from John R. H. Goering's
 // book `The Powers of the Square Root of -1` and also from
 // <https://warp.povusers.org/Mandelbrot>
 int calculateJuliaPoint(const complex &z, const complex &k)
@@ -39,7 +40,7 @@ int calculateJuliaPoint(const complex &z, const complex &k)
     }
 }
 
-int calculateIsJuliaConnected(const complex &c)
+int calculateMandelbrotPoint(const complex &c)
 {
     if (std::abs(c) > 2)
         return 1;
@@ -56,12 +57,30 @@ int calculateIsJuliaConnected(const complex &c)
     }
 }
 
+// <https://en.wikipedia.org/wiki/Burning_Ship_fractal> was instrumental in creating this function
+int calculateBurningShipPoint(const complex &c)
+{
+    if (std::abs(c) > 2)
+        return 1;
+    else
+    {
+        auto zSquaredPlusC = complex{boost::multiprecision::abs(c.real()), boost::multiprecision::abs(c.imag())};
+        for (int i = 0; i < 25; ++i)
+        {
+            auto temp = (zSquaredPlusC * zSquaredPlusC) + c;
+            zSquaredPlusC = complex{boost::multiprecision::abs(temp.real()), boost::multiprecision::abs(temp.imag())};
+            if (std::abs(zSquaredPlusC) > 2)
+                return i + 1;
+        }
+        return 0;
+    }
+}
+
 void FractalView::paint(QPainter *painter)
 {
-    if (m_mandelbrotRect.visualRect().isEmpty())
-        m_mandelbrotRect.setVisualRect(boundingRect());
-    if (m_juliaRect.visualRect().isEmpty())
-        m_juliaRect.setVisualRect(boundingRect());
+    for (auto &rect : m_fractalRects)
+        if (rect.visualRect().isEmpty())
+            rect.setVisualRect(boundingRect());
     if (m_image.size().isEmpty())
         m_image = QImage{boundingRect().size().toSize(), QImage::Format_ARGB32};
 
@@ -69,8 +88,8 @@ void FractalView::paint(QPainter *painter)
     {
         m_width = width();
         m_height = height();
-        m_mandelbrotRect.setVisualRect(boundingRect());
-        m_juliaRect.setVisualRect(boundingRect());
+        for (auto &rect : m_fractalRects)
+            rect.setVisualRect(boundingRect());
         m_image = QImage{boundingRect().size().toSize(), QImage::Format_ARGB32};
         m_isFullyLoaded = false;
     }
@@ -83,8 +102,8 @@ void FractalView::paint(QPainter *painter)
         m_image.fill(Qt::transparent);
 
         auto fut = QtConcurrent::run([this] {
-            auto list = (m_type == Type::Julia ? m_juliaRect : m_mandelbrotRect).split(fragments);
             const auto fragments = std::min(QThread::idealThreadCount() * 64, static_cast<int>(width() * height()));
+            auto list = m_fractalRects[m_type].split(fragments);
 
             m_remainingFragmentsMutex.lock();
             m_remainingFragments = fragments;
@@ -120,7 +139,23 @@ void FractalView::paint(QPainter *painter)
                             return;
 
                         complex num = rect.getFractalValueFromVisualPoint(i, j);
-                        if (int result = (m_type == Type::Julia ? calculateJuliaPoint(num, m_juliaPos) : calculateIsJuliaConnected(num)); result == 0)
+                        int result{};
+                        switch (m_type)
+                        {
+                        case Type::Mandelbrot:
+                            result = calculateMandelbrotPoint(num);
+                            break;
+                        case Type::Julia:
+                            result = calculateJuliaPoint(num, m_juliaPos);
+                            break;
+                        case Type::BurningShip:
+                            result = calculateBurningShipPoint(num);
+                            break;
+                        default:
+                            break;
+                        }
+
+                        if (result == 0)
                             painter.setPen(QPen{QColor{0, 0, 0}});
                         else
                             painter.setPen(QPen{
@@ -160,27 +195,30 @@ void FractalView::paint(QPainter *painter)
     m_imageMutex.unlock();
 }
 
-void FractalView::switchToJulia(int x, int y)
+void FractalView::setType(Type type)
 {
+    if (m_type == type)
+        return;
+
     cancelRender();
-
+    m_type = type;
     m_isFullyLoaded = false;
-    m_type = Type::Julia;
     emit typeChanged();
-
-    m_juliaPos = m_mandelbrotRect.getFractalValueFromVisualPoint({qreal(x), qreal(y)});
     emit updateView();
 }
 
-void FractalView::switchToMandelbrot()
+void FractalView::setJuliaPoint(QPoint point)
 {
-    cancelRender();
+    if (point == m_juliaPoint)
+        return;
 
-    m_isFullyLoaded = false;
-    m_type = Type::Mandelbrot;
-    emit typeChanged();
+    m_juliaPoint = point;
+    emit juliaPointChanged();
 
-    emit updateView();
+    m_juliaPos = m_fractalRects[Type::Julia].getFractalValueFromVisualPoint(m_juliaPoint);
+
+    if (m_type == Type::Julia)
+        scheduleRender();
 }
 
 void FractalView::cancelRender()
@@ -202,6 +240,19 @@ void FractalView::scheduleRender()
 
 void FractalView::zoomIn()
 {
+    zoomInBy(0.9);
+}
+
+void FractalView::zoomOut()
+{
+    zoomOutBy(0.9);
+}
+
+void FractalView::zoomInBy(double factor)
+{
+    if (factor == 1)
+        return; // no zoom
+
     cancelRender();
 
     auto &currentRect = m_fractalRects[m_type];
@@ -211,23 +262,16 @@ void FractalView::zoomIn()
                        currentRect.coreHeight() * factor,
                        currentRect.visualRect()};
 
-    switch (m_type)
-    {
-    case Type::Mandelbrot:
-        m_mandelbrotRect = newRect;
-        break;
-    case Type::Julia:
-        m_juliaRect = newRect;
-        break;
-    default:
-        break;
-    }
+    m_fractalRects[m_type] = newRect;
 
     scheduleRender();
 }
 
-void FractalView::zoomOut()
+void FractalView::zoomOutBy(double factor)
 {
+    if (factor == 1)
+        return;
+
     cancelRender();
 
     auto &currentRect = m_fractalRects[m_type];
@@ -237,29 +281,7 @@ void FractalView::zoomOut()
                        currentRect.height() / factor,
                 currentRect.visualRect()};
 
-    switch (m_type)
-    {
-    case Type::Mandelbrot:
-        m_mandelbrotRect = newRect;
-        break;
-    case Type::Julia:
-        m_juliaRect = newRect;
-        break;
-    default:
-        break;
-    }
+    m_fractalRects[m_type] = newRect;
 
     scheduleRender();
-}
-
-FractalRect &FractalView::getCurrentFractalRect()
-{
-    switch (m_type)
-    {
-    case Type::Julia:
-        return m_juliaRect;
-    case Type::Mandelbrot:
-    default:
-        return m_mandelbrotRect;
-    }
 }

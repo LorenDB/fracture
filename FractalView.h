@@ -15,13 +15,15 @@ class FractalView : public QQuickPaintedItem
     Q_OBJECT
 
     Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged)
-    Q_PROPERTY(Type type READ type NOTIFY typeChanged)
+    Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(QPoint juliaPoint READ juliaPoint WRITE setJuliaPoint NOTIFY juliaPointChanged)
 
 public:
     enum Type
     {
         Mandelbrot,
         Julia,
+        BurningShip,
     };
     Q_ENUM(Type)
 
@@ -31,6 +33,10 @@ public:
 
     bool isLoading() const { return m_isLoading; }
     Type type() const { return m_type; }
+    QPoint juliaPoint() const { return m_juliaPoint; }
+
+    void setType(Type type);
+    void setJuliaPoint(QPoint point);
 
 signals:
     // since we want to call update() from the render thread(s), this signal is needed to get the call working properly
@@ -39,16 +45,17 @@ signals:
     void isLoadingChanged();
     void typeChanged();
     void zoomChanged();
+    void juliaPointChanged();
 
 public slots:
-    void switchToJulia(int x, int y);
-    void switchToMandelbrot();
-
     void cancelRender();
     void scheduleRender();
 
     void zoomIn();
     void zoomOut();
+
+    void zoomInBy(double factor);
+    void zoomOutBy(double factor);
 
 private:
     FractalRect &getCurrentFractalRect();
@@ -57,10 +64,10 @@ private:
     bool m_isFullyLoaded{false};
     bool m_isLoading{false};
     Type m_type{Type::Mandelbrot};
-    FractalRect m_mandelbrotRect;
-    FractalRect m_juliaRect;
+    QMap<Type, FractalRect> m_fractalRects;
 
     complex m_juliaPos;
+    QPoint m_juliaPoint;
 
     // Note: I don't necessarily approve of using qreals;
     // I'm using them here to ensure compatibility with Qt
