@@ -23,32 +23,47 @@ ApplicationWindow {
         anchors.margins: 10
         spacing: 10
 
-        ButtonGroup {
-            buttons: fractalTypeButtons.children
-            exclusive: true
-        }
-
         ColumnLayout {
-            id: fractalTypeButtons
-
             spacing: 10
 
-            RadioButton {
-                text: qsTr("Mandelbrot")
-                onClicked: fractalView.type = FractalView.Mandelbrot
-                checked: fractalView.type === FractalView.Mandelbrot
+            Button {
+                text: qsTr("Refresh")
+                onClicked: fractalView.scheduleRender()
             }
 
-            RadioButton {
-                text: qsTr("Julia")
-                onClicked: fractalView.type = FractalView.Julia
-                checked: fractalView.type === FractalView.Julia
+            Button {
+                text: qsTr("Stop")
+                onClicked: fractalView.cancelRender()
+                enabled: fractalView.isLoading
             }
 
-            RadioButton {
-                text: qsTr("Burning ship")
-                onClicked: fractalView.type = FractalView.BurningShip
-                checked: fractalView.type === FractalView.BurningShip
+            ButtonGroup {
+                buttons: fractalTypeButtons.children
+                exclusive: true
+            }
+
+            ColumnLayout {
+                id: fractalTypeButtons
+
+                spacing: 10
+
+                RadioButton {
+                    text: qsTr("Mandelbrot")
+                    onClicked: fractalView.type = FractalView.Mandelbrot
+                    checked: fractalView.type === FractalView.Mandelbrot
+                }
+
+                RadioButton {
+                    text: qsTr("Julia")
+                    onClicked: fractalView.type = FractalView.Julia
+                    checked: fractalView.type === FractalView.Julia
+                }
+
+                RadioButton {
+                    text: qsTr("Burning ship")
+                    onClicked: fractalView.type = FractalView.BurningShip
+                    checked: fractalView.type === FractalView.BurningShip
+                }
             }
         }
 
