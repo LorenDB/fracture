@@ -245,15 +245,15 @@ void FractalView::scheduleRender()
 
 void FractalView::zoomIn()
 {
-    zoomInBy(0.9);
+    zoomInTo(0.9);
 }
 
 void FractalView::zoomOut()
 {
-    zoomOutBy(0.9);
+    zoomOutTo(0.9);
 }
 
-void FractalView::zoomInBy(double factor)
+void FractalView::zoomInTo(double factor)
 {
     if (factor == 1)
         return; // no zoom
@@ -261,8 +261,8 @@ void FractalView::zoomInBy(double factor)
     cancelRender();
 
     auto &currentRect = m_fractalRects[m_type];
-    FractalRect newRect{currentRect.coreX() + currentRect.coreWidth() * ((1 - factor) / 2),
-                       currentRect.coreY() + currentRect.coreHeight() * ((1 - factor) / 2),
+    FractalRect newRect{currentRect.coreX() + (currentRect.coreWidth() - (currentRect.coreWidth() * factor)) / 2,
+                       currentRect.coreY() + (currentRect.coreHeight() - (currentRect.coreHeight() * factor)) / 2,
                        currentRect.coreWidth() * factor,
                        currentRect.coreHeight() * factor,
                        currentRect.visualRect()};
@@ -272,7 +272,7 @@ void FractalView::zoomInBy(double factor)
     scheduleRender();
 }
 
-void FractalView::zoomOutBy(double factor)
+void FractalView::zoomOutTo(double factor)
 {
     if (factor == 1)
         return;
@@ -280,10 +280,10 @@ void FractalView::zoomOutBy(double factor)
     cancelRender();
 
     auto &currentRect = m_fractalRects[m_type];
-    FractalRect newRect{currentRect.x() - currentRect.width() / ((1 - factor) / 2),
-                       currentRect.y() - currentRect.height() / ((1 - factor) / 2),
-                       currentRect.width() / factor,
-                       currentRect.height() / factor,
+    FractalRect newRect{currentRect.coreX() - ((currentRect.coreWidth() / factor) - currentRect.coreWidth()) / 2,
+                       currentRect.coreY() - ((currentRect.coreHeight() / factor) - currentRect.coreHeight()) / 2,
+                       currentRect.coreWidth() / factor,
+                       currentRect.coreHeight() / factor,
                 currentRect.visualRect()};
 
     m_fractalRects[m_type] = newRect;

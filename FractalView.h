@@ -55,8 +55,8 @@ public slots:
     void zoomIn();
     void zoomOut();
 
-    void zoomInBy(double factor);
-    void zoomOutBy(double factor);
+    void zoomInTo(double factor);
+    void zoomOutTo(double factor);
 
 private:
     FractalRect &getCurrentFractalRect();

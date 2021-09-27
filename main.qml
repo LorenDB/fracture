@@ -77,7 +77,7 @@ ApplicationWindow {
             Shortcut {
                 sequence: "Return"
                 onActivated: {
-                    fractalView.zoomInBy(zoomBox.zoomFactor)
+                    fractalView.zoomInTo(zoomBox.zoomFactor)
                     zoomBox.zoomFactor = 1
                 }
             }
@@ -85,7 +85,7 @@ ApplicationWindow {
             Shortcut {
                 sequence: "Ctrl+Return"
                 onActivated: {
-                    fractalView.zoomOutBy(zoomBox.zoomFactor)
+                    fractalView.zoomOutTo(zoomBox.zoomFactor)
                     zoomBox.zoomFactor = 1
                 }
             }
