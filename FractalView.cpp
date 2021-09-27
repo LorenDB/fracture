@@ -38,7 +38,7 @@ int calculateJuliaPoint(const complex &z, const complex &k)
         for (int i = 0; i < 50; ++i)
         {
             zSquaredPlusK = (zSquaredPlusK * zSquaredPlusK) + k;
-            if (std::abs(zSquaredPlusK) > 2)
+            if (boost::multiprecision::pow(zSquaredPlusK.real(), 2) + boost::multiprecision::pow(zSquaredPlusK.imag(), 2) > 4)
                 return i + 1;
         }
         return 0;
@@ -54,8 +54,8 @@ int calculateMandelbrotPoint(const complex &c)
         auto zSquaredPlusC = c;
         for (int i = 0; i < 25; ++i)
         {
-            zSquaredPlusC = (zSquaredPlusC * zSquaredPlusC) + c;
-            if (std::abs(zSquaredPlusC) > 2)
+            zSquaredPlusC = std::pow(zSquaredPlusC, 2) + c;
+            if (boost::multiprecision::pow(zSquaredPlusC.real(), 2) + boost::multiprecision::pow(zSquaredPlusC.imag(), 2) > 4)
                 return i + 1;
         }
         return 0;
@@ -72,9 +72,9 @@ int calculateBurningShipPoint(const complex &c)
         auto zSquaredPlusC = complex{boost::multiprecision::abs(c.real()), boost::multiprecision::abs(c.imag())};
         for (int i = 0; i < 25; ++i)
         {
-            auto temp = (zSquaredPlusC * zSquaredPlusC) + c;
+            auto temp = std::pow(zSquaredPlusC, 2) + c;
             zSquaredPlusC = complex{boost::multiprecision::abs(temp.real()), boost::multiprecision::abs(temp.imag())};
-            if (std::abs(zSquaredPlusC) > 2)
+            if (boost::multiprecision::pow(zSquaredPlusC.real(), 2) + boost::multiprecision::pow(zSquaredPlusC.imag(), 2) > 4)
                 return i + 1;
         }
         return 0;
