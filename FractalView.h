@@ -28,6 +28,7 @@ public:
     Q_ENUM(Type)
 
     explicit FractalView(QQuickItem *parent = nullptr);
+    ~FractalView();
 
     virtual void paint(QPainter *painter);
 

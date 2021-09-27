@@ -20,6 +20,11 @@ FractalView::FractalView(QQuickItem *parent)
     connect(this, &FractalView::updateView, this, [this] { update(); }, Qt::QueuedConnection);
 }
 
+FractalView::~FractalView()
+{
+    cancelRender();
+}
+
 // the methodology of these two functions come from John R. H. Goering's
 // book `The Powers of the Square Root of -1` and also from
 // <https://warp.povusers.org/Mandelbrot>
