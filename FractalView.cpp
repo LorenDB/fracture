@@ -194,7 +194,6 @@ void FractalView::paint(QPainter *painter)
         Q_UNUSED(fut)
     }
 
-    // TODO: this doesn't work for resizes
     m_imageMutex.lock();
     painter->drawImage(boundingRect(), m_image);
     m_imageMutex.unlock();
