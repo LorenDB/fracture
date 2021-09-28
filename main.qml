@@ -100,6 +100,20 @@ ApplicationWindow {
             }
 
             Shortcut {
+                property double increment: 1 - (fractalView.width - 2) / fractalView.width
+
+                sequence: "Shift+PgUp"
+                onActivated: fractalView.zoomFactor -= increment
+            }
+
+            Shortcut {
+                property double increment: 1 - (fractalView.width - 2) / fractalView.width
+
+                sequence: "Shift+PgDown"
+                onActivated: fractalView.zoomFactor += increment
+            }
+
+            Shortcut {
                 sequence: "Left"
                 onActivated: fractalView.xOffset -= 20
             }
@@ -117,6 +131,26 @@ ApplicationWindow {
             Shortcut {
                 sequence: "Down"
                 onActivated: fractalView.yOffset += 20
+            }
+
+            Shortcut {
+                sequence: "Shift+Left"
+                onActivated: fractalView.xOffset -= 1
+            }
+
+            Shortcut {
+                sequence: "Shift+Right"
+                onActivated: fractalView.xOffset += 1
+            }
+
+            Shortcut {
+                sequence: "Shift+Up"
+                onActivated: fractalView.yOffset -= 1
+            }
+
+            Shortcut {
+                sequence: "Shift+Down"
+                onActivated: fractalView.yOffset += 1
             }
 
             TapHandler {
