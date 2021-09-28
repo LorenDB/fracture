@@ -35,7 +35,7 @@ int calculateJuliaPoint(const complex &z, const complex &k)
     else
     {
         auto zSquaredPlusK = z;
-        for (int i = 0; i < 50; ++i)
+        for (int i = 0; i < 25; ++i)
         {
             zSquaredPlusK = (zSquaredPlusK * zSquaredPlusK) + k;
             if (boost::multiprecision::pow(zSquaredPlusK.real(), 2) + boost::multiprecision::pow(zSquaredPlusK.imag(), 2) > 4)
