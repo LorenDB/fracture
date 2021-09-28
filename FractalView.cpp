@@ -227,10 +227,10 @@ void FractalView::setJuliaPoint(QPoint point)
 
 void FractalView::setZoomFactor(double factor)
 {
-    if (m_zoomFactor == factor || factor > 1 || factor <= 0)
+    if (m_zoomFactor == factor || factor <= 0)
         return;
 
-    m_zoomFactor = factor;
+    m_zoomFactor = std::min(factor, 1.0);
     emit zoomFactorChanged();
 }
 
