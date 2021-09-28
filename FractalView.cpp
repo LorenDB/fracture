@@ -272,11 +272,11 @@ void FractalView::resetXOffset()
 
 void FractalView::resetYOffset()
 {
-    if (m_xOffset == 0)
+    if (m_yOffset == 0)
         return;
 
-    m_xOffset = 0;
-    emit xOffsetChanged();
+    m_yOffset = 0;
+    emit yOffsetChanged();
 }
 
 void FractalView::cancelRender()
