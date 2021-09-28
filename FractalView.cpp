@@ -226,6 +226,60 @@ void FractalView::setJuliaPoint(QPoint point)
         rerender();
 }
 
+void FractalView::setZoomFactor(double factor)
+{
+    if (m_zoomFactor == factor || factor > 1 || factor <= 0)
+        return;
+
+    m_zoomFactor = factor;
+    emit zoomFactorChanged();
+}
+
+void FractalView::setXOffset(double offset)
+{
+    if (m_xOffset == offset)
+        return;
+
+    m_xOffset = offset;
+    emit xOffsetChanged();
+}
+
+void FractalView::setYOffset(double offset)
+{
+    if (m_yOffset == offset)
+        return;
+
+    m_yOffset = offset;
+    emit yOffsetChanged();
+}
+
+void FractalView::resetZoomFactor()
+{
+    if (m_zoomFactor == 1)
+        return;
+
+    m_zoomFactor = 1;
+    emit zoomFactorChanged();
+}
+
+void FractalView::resetXOffset()
+{
+    if (m_xOffset == 0)
+        return;
+
+    m_xOffset = 0;
+    emit xOffsetChanged();
+}
+
+void FractalView::resetYOffset()
+{
+    if (m_xOffset == 0)
+        return;
+
+    m_xOffset = 0;
+    emit xOffsetChanged();
+}
+
 void FractalView::cancelRender()
 {
     m_cancelRenderRequested = true;
@@ -243,50 +297,50 @@ void FractalView::rerender()
     emit updateView();
 }
 
-void FractalView::zoomIn()
+void FractalView::applyZoomIn()
 {
-    zoomInTo(0.9);
-}
-
-void FractalView::zoomOut()
-{
-    zoomOutTo(0.9);
-}
-
-void FractalView::zoomInTo(double factor)
-{
-    if (factor == 1)
+    if (m_zoomFactor == 1)
         return; // no zoom
 
     cancelRender();
 
     auto &currentRect = m_fractalRects[m_type];
-    FractalRect newRect{currentRect.coreX() + (currentRect.coreWidth() - (currentRect.coreWidth() * factor)) / 2,
-                       currentRect.coreY() + (currentRect.coreHeight() - (currentRect.coreHeight() * factor)) / 2,
-                       currentRect.coreWidth() * factor,
-                       currentRect.coreHeight() * factor,
+    const auto complexValuePerPixel = currentRect.width() / boundingRect().width();
+    FractalRect newRect{currentRect.coreX() + (currentRect.coreWidth() - (currentRect.coreWidth() * m_zoomFactor)) / 2 + complexValuePerPixel * m_xOffset,
+                       currentRect.coreY() + (currentRect.coreHeight() - (currentRect.coreHeight() * m_zoomFactor)) / 2 + complexValuePerPixel * m_yOffset,
+                       currentRect.coreWidth() * m_zoomFactor,
+                       currentRect.coreHeight() * m_zoomFactor,
                        currentRect.visualRect()};
 
     m_fractalRects[m_type] = newRect;
 
+    setZoomFactor(1);
+    resetXOffset();
+    resetYOffset();
+
     rerender();
 }
 
-void FractalView::zoomOutTo(double factor)
+void FractalView::applyZoomOut()
 {
-    if (factor == 1)
+    if (m_zoomFactor == 1)
         return;
 
     cancelRender();
 
     auto &currentRect = m_fractalRects[m_type];
-    FractalRect newRect{currentRect.coreX() - ((currentRect.coreWidth() / factor) - currentRect.coreWidth()) / 2,
-                       currentRect.coreY() - ((currentRect.coreHeight() / factor) - currentRect.coreHeight()) / 2,
-                       currentRect.coreWidth() / factor,
-                       currentRect.coreHeight() / factor,
+    FractalRect newRect{currentRect.coreX() - ((currentRect.coreWidth() / m_zoomFactor) - currentRect.coreWidth()) / 2,
+                       currentRect.coreY() - ((currentRect.coreHeight() / m_zoomFactor) - currentRect.coreHeight()) / 2,
+                       currentRect.coreWidth() / m_zoomFactor,
+                       currentRect.coreHeight() / m_zoomFactor,
                 currentRect.visualRect()};
 
     m_fractalRects[m_type] = newRect;
+
+    setZoomFactor(1);
+    // NOTE: there is not really a good way to apply offsets while zooming out, so we're ignoring them for this function
+    resetXOffset();
+    resetYOffset();
 
     rerender();
 }

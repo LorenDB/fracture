@@ -21,8 +21,8 @@ find_library(mpfr mpfr REQUIRED)
 set(TS_FILES fracture_en_US.ts)
 
 set(PROJECT_SOURCES
-	FractalRect.cpp
 	main.cpp
+	FractalRect.cpp
 	FractalView.cpp
 
 	qml.qrc

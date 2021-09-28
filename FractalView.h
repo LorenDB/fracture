@@ -17,6 +17,9 @@ class FractalView : public QQuickPaintedItem
     Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QPoint juliaPoint READ juliaPoint WRITE setJuliaPoint NOTIFY juliaPointChanged)
+    Q_PROPERTY(double zoomFactor READ zoomFactor WRITE setZoomFactor RESET resetZoomFactor NOTIFY zoomFactorChanged)
+    Q_PROPERTY(double xOffset READ xOffset WRITE setXOffset RESET resetXOffset NOTIFY xOffsetChanged)
+    Q_PROPERTY(double yOffset READ yOffset WRITE setYOffset RESET resetYOffset NOTIFY yOffsetChanged)
 
 public:
     enum Type
@@ -35,9 +38,20 @@ public:
     bool isLoading() const { return m_isLoading; }
     Type type() const { return m_type; }
     QPoint juliaPoint() const { return m_juliaPoint; }
+    double zoomFactor() const { return m_zoomFactor; }
+    double xOffset() const { return m_xOffset; }
+    double yOffset() const { return m_yOffset; }
 
     void setType(Type type);
     void setJuliaPoint(QPoint point);
+    void setZoomFactor(double factor);
+    void setXOffset(double offset);
+    void setYOffset(double offset);
+
+    void resetNavigationRect();
+    void resetZoomFactor();
+    void resetXOffset();
+    void resetYOffset();
 
 signals:
     // since we want to call update() from the render thread(s), this signal is needed to get the call working properly
@@ -47,16 +61,16 @@ signals:
     void typeChanged();
     void zoomChanged();
     void juliaPointChanged();
+    void zoomFactorChanged();
+    void xOffsetChanged();
+    void yOffsetChanged();
 
 public slots:
     void cancelRender();
-
-    void zoomIn();
-    void zoomOut();
     void rerender();
 
-    void zoomInTo(double factor);
-    void zoomOutTo(double factor);
+    void applyZoomIn();
+    void applyZoomOut();
 
 private:
     FractalRect &getCurrentFractalRect();
@@ -74,6 +88,11 @@ private:
     // I'm using them here to ensure compatibility with Qt
     qreal m_width{};
     qreal m_height{};
+
+    double m_zoomFactor{1};
+    // these offsets are used for navigation
+    double m_xOffset{0};
+    double m_yOffset{0};
 
     QMutex m_imageMutex;
     QMutex m_remainingFragmentsMutex;

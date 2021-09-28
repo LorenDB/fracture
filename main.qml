@@ -6,8 +6,8 @@ import QtGraphicalEffects 1.0
 import fracture 1.0
 
 ApplicationWindow {
-    width: 1000
-    height: 1000
+    width: 1440
+    height: 900
     visible: true
     title: "fracture"
 
@@ -28,7 +28,7 @@ ApplicationWindow {
 
             Button {
                 text: qsTr("Refresh")
-                onClicked: fractalView.scheduleRender()
+                onClicked: fractalView.rerender()
             }
 
             Button {
@@ -75,44 +75,48 @@ ApplicationWindow {
             focus: true
 
             Shortcut {
-                sequence: "A"
-                onActivated: fractalView.zoomIn()
-            }
-
-            Shortcut {
-                sequence: "Z"
-                onActivated: fractalView.zoomOut()
-            }
-
-            Shortcut {
                 sequence: "F5"
-                onActivated: fractalView.scheduleRender()
+                onActivated: fractalView.rerender()
             }
 
             Shortcut {
                 sequence: "Return"
-                onActivated: {
-                    fractalView.zoomInTo(zoomBox.zoomFactor)
-                    zoomBox.zoomFactor = 1
-                }
+                onActivated: fractalView.applyZoomIn()
             }
 
             Shortcut {
                 sequence: "Ctrl+Return"
-                onActivated: {
-                    fractalView.zoomOutTo(zoomBox.zoomFactor)
-                    zoomBox.zoomFactor = 1
-                }
+                onActivated: fractalView.applyZoomOut()
             }
 
             Shortcut {
                 sequence: "PgUp"
-                onActivated: zoomBox.zoomFactor -= 0.05
+                onActivated: fractalView.zoomFactor -= 0.05
             }
 
             Shortcut {
                 sequence: "PgDown"
-                onActivated: zoomBox.zoomFactor += 0.05
+                onActivated: fractalView.zoomFactor += 0.05
+            }
+
+            Shortcut {
+                sequence: "Left"
+                onActivated: fractalView.xOffset -= 20
+            }
+
+            Shortcut {
+                sequence: "Right"
+                onActivated: fractalView.xOffset += 20
+            }
+
+            Shortcut {
+                sequence: "Up"
+                onActivated: fractalView.yOffset -= 20
+            }
+
+            Shortcut {
+                sequence: "Down"
+                onActivated: fractalView.yOffset += 20
             }
 
             TapHandler {
@@ -131,16 +135,15 @@ ApplicationWindow {
             Rectangle {
                 id: zoomBox
 
-                property double zoomFactor: 1
-
+                x: parent.width / 2 - width / 2 + fractalView.xOffset
+                y: parent.height / 2 - height / 2 + fractalView.yOffset
                 color: "transparent"
                 border.color: "white"
                 border.width: 1
                 radius: 2
-                visible: zoomFactor !== 1
-                anchors.centerIn: parent
-                width: parent.width * zoomFactor
-                height: parent.height * zoomFactor
+                visible: fractalView.zoomFactor !== 1
+                width: parent.width * fractalView.zoomFactor
+                height: parent.height * fractalView.zoomFactor
             }
 
             Rectangle {
@@ -151,31 +154,17 @@ ApplicationWindow {
                 height: loadingMsg.implicitHeight + 10
                 radius: 5
                 visible: fractalView.isLoading
+                opacity: 0.9
+            }
 
-                Text {
-                    id: loadingMsg
+            Text {
+                id: loadingMsg
 
-                    anchors.centerIn: parent
-                    font.pointSize: 18
-                    text: "Loading..."
-                    visible: fractalView.isLoading
-                }
+                anchors.centerIn: loadingBubble
+                font.pointSize: 18
+                text: "Loading..."
+                visible: fractalView.isLoading
             }
         }
-
-//        ShaderEffectSource {
-//            id: ses
-
-//            samples: 64
-//            sourceItem: fractalView
-//            sourceRect: Qt.rect(loadingBubble.x, loadingBubble.y, loadingBubble.width, loadingBubble.height)
-//            anchors.fill: loadingBubble
-//        }
-
-//        GaussianBlur {
-//            anchors.fill: loadingBubble
-//            source: ses
-//            radius: 10
-//        }
     }
 }
