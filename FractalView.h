@@ -50,10 +50,10 @@ signals:
 
 public slots:
     void cancelRender();
-    void scheduleRender();
 
     void zoomIn();
     void zoomOut();
+    void rerender();
 
     void zoomInTo(double factor);
     void zoomOutTo(double factor);

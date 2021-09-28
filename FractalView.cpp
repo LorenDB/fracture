@@ -223,7 +223,7 @@ void FractalView::setJuliaPoint(QPoint point)
     m_juliaPos = m_fractalRects[Type::Julia].getFractalValueFromVisualPoint(m_juliaPoint);
 
     if (m_type == Type::Julia)
-        scheduleRender();
+        rerender();
 }
 
 void FractalView::cancelRender()
@@ -234,7 +234,7 @@ void FractalView::cancelRender()
     m_cancelRenderRequested = false;
 }
 
-void FractalView::scheduleRender()
+void FractalView::rerender()
 {
     if (m_isLoading)
         cancelRender();
@@ -269,7 +269,7 @@ void FractalView::zoomInTo(double factor)
 
     m_fractalRects[m_type] = newRect;
 
-    scheduleRender();
+    rerender();
 }
 
 void FractalView::zoomOutTo(double factor)
@@ -288,5 +288,5 @@ void FractalView::zoomOutTo(double factor)
 
     m_fractalRects[m_type] = newRect;
 
-    scheduleRender();
+    rerender();
 }
