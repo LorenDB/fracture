@@ -81,7 +81,8 @@ private:
     Type m_type{Type::Mandelbrot};
     QMap<Type, FractalRect> m_fractalRects;
 
-    complex m_juliaPos;
+    // this is a pretty nice default value; let's use it for now
+    complex m_juliaPos{0.63982341, 0.123432153};
     QPoint m_juliaPoint;
 
     // Note: I don't necessarily approve of using qreals;
