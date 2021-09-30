@@ -3,6 +3,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.0
+import Qt.labs.platform 1.0
 import fracture 1.0
 
 ApplicationWindow {
@@ -16,6 +17,16 @@ ApplicationWindow {
             anchors.centerIn: parent
             text: "fracture"
         }
+    }
+
+    FileDialog {
+        id: fileDialog
+
+        defaultSuffix: "png"
+        nameFilters: "Image files (*.png *.bmp *.jpg)"
+        fileMode: FileDialog.SaveFile
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
+        onAccepted: fractalView.saveImage(file)
     }
 
     RowLayout {
@@ -35,6 +46,12 @@ ApplicationWindow {
                 text: qsTr("Stop")
                 onClicked: fractalView.cancelRender()
                 enabled: fractalView.isLoading
+            }
+
+            Button {
+                text: qsTr("Save")
+                onClicked: fileDialog.open()
+                enabled: !fractalView.isLoading
             }
 
             ButtonGroup {
@@ -151,6 +168,12 @@ ApplicationWindow {
             Shortcut {
                 sequence: "Shift+Down"
                 onActivated: fractalView.yOffset += 1
+            }
+
+            Shortcut {
+                sequence: "Ctrl+S"
+                onActivated: fileDialog.open()
+                enabled: !fractalView.isLoading
             }
 
             TapHandler {

@@ -6,6 +6,9 @@
 #include <QtConcurrent>
 #include <QThread>
 
+#include <QSaveFile>
+#include <QStandardPaths>
+
 #include <complex>
 
 FractalView::FractalView(QQuickItem *parent)
@@ -342,4 +345,11 @@ void FractalView::applyZoomOut()
     resetYOffset();
 
     rerender();
+}
+
+void FractalView::saveImage(QString filename)
+{
+    m_imageMutex.lock();
+    m_image.save(QUrl{filename}.toLocalFile());
+    m_imageMutex.unlock();
 }

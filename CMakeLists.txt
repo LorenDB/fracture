@@ -11,8 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick QuickControls2 Concurrent LinguistTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick QuickControls2 Concurrent LinguistTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick QuickControls2 Widgets Concurrent LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick QuickControls2 Widgets Concurrent LinguistTools REQUIRED)
 find_package(Boost REQUIRED)
 
 find_library(gmp gmp REQUIRED)
@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
 set(LIBS
 	Qt${QT_VERSION_MAJOR}::Quick
 	Qt${QT_VERSION_MAJOR}::QuickControls2
+	Qt${QT_VERSION_MAJOR}::Widgets
 	Qt${QT_VERSION_MAJOR}::Concurrent
 	gmp
 	mpfr

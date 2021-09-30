@@ -72,6 +72,8 @@ public slots:
     void applyZoomIn();
     void applyZoomOut();
 
+    void saveImage(QString filename);
+
 private:
     FractalRect &getCurrentFractalRect();
 
